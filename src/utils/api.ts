@@ -1,5 +1,5 @@
 import { IConfig, ICreateMessage } from '../types/types';
-import { baseUrl, idInstance, apiTokenInstance } from './constants';
+import { baseUrl } from './constants';
 
 async function createResponse(url: string, method: string, data: ICreateMessage | null = null) {
   try {
@@ -25,7 +25,25 @@ async function createResponse(url: string, method: string, data: ICreateMessage 
   }
 }
 
-export const sendMessage = (message: ICreateMessage) => {
+export const sendMessage = (
+  idInstance: string,
+  apiTokenInstance: string,
+  message: ICreateMessage
+) => {
   const url = `${baseUrl}${idInstance}/SendMessage/${apiTokenInstance}`;
   return createResponse(url, 'POST', message);
+};
+
+export const receiveNotification = (idInstance: string, apiTokenInstance: string) => {
+  const url = `${baseUrl}${idInstance}/ReceiveNotification/${apiTokenInstance}`;
+  return createResponse(url, 'GET');
+};
+
+export const deleteNotification = (
+  idInstance: string,
+  apiTokenInstance: string,
+  receiptId: string
+) => {
+  const url = `${baseUrl}${idInstance}/DeleteNotification/${apiTokenInstance}/${receiptId}`;
+  return createResponse(url, 'DELETE');
 };

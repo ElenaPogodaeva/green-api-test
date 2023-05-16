@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Chat.scss';
-import { sendMessage } from '../../utils/api';
+import { deleteNotification, receiveNotification, sendMessage } from '../../utils/api';
 import { ICreateMessage, IMessage } from '../../types/types';
+import { apiTokenInstance, idInstance } from '../../utils/constants';
 
 type ChatProps = {
   phoneNumber: string;
@@ -18,27 +19,62 @@ export const Chat = ({ phoneNumber }: ChatProps) => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     try {
       const messageData: ICreateMessage = {
         chatId: `${phoneNumber}@c.us`,
         message,
       };
-      await sendMessage(messageData);
+      const { idMessage } = await sendMessage(idInstance, apiTokenInstance, messageData);
 
-      setMessages([
-        ...messages,
+      setMessages((prev) => [
+        ...prev,
         {
-          chatId: `${phoneNumber}@c.us`,
+          id: idMessage,
           message,
           received: false,
         },
       ]);
       setMessage('');
-      console.log(messages);
     } catch (err) {
       console.error('Failed to send the message: ', err);
     }
   };
+
+  const receiveMessage = async () => {
+    try {
+      const receivedMessage = await receiveNotification(idInstance, apiTokenInstance);
+
+      if (receivedMessage && receivedMessage.body.messageData?.typeMessage === 'textMessage') {
+        const textMessage = receivedMessage.body.messageData.textMessageData.textMessage;
+
+        const idMessage = receivedMessage.body.idMessage;
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: idMessage,
+            message: textMessage,
+            received: true,
+          },
+        ]);
+
+        const receiptId = receivedMessage.receiptId;
+
+        await deleteNotification(idInstance, apiTokenInstance, receiptId);
+      }
+    } catch (err) {
+      console.error('Failed to receive the message: ', err);
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(receiveMessage, 10000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <>
@@ -52,7 +88,7 @@ export const Chat = ({ phoneNumber }: ChatProps) => {
         {Boolean(messages.length) &&
           messages.map((message, index) => (
             <li key={index} className="message">
-              <div>{message.chatId}</div>
+              <div>{message.id}</div>
               <div>{message.message}</div>
             </li>
           ))}

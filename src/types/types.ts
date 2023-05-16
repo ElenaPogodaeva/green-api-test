@@ -1,5 +1,5 @@
 export interface IMessage {
-  chatId: string;
+  id: string;
   message: string;
   received: boolean;
 }
@@ -9,7 +9,7 @@ export interface ICreateMessage {
   message: string;
 }
 
-export interface IMessageResponse {
+export interface ISendMessageResponse {
   idMessage: string;
 }
 
