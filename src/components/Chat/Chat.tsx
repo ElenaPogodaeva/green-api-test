@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import './Chat.scss';
 import { deleteNotification, receiveNotification, sendMessage } from '../../utils/api';
 import { ICreateMessage, IMessage } from '../../types/types';
-import { apiTokenInstance, idInstance } from '../../utils/constants';
+import { useAppSelector } from '../../hooks/hooks';
 
 type ChatProps = {
   phoneNumber: string;
+  onChatExit: () => void;
 };
 
-export const Chat = ({ phoneNumber }: ChatProps) => {
+export const Chat = ({ phoneNumber, onChatExit }: ChatProps) => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [message, setMessage] = useState('');
+  const { idInstance, apiTokenInstance } = useAppSelector((state) => state.auth);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const { value } = event.target;
@@ -44,23 +46,20 @@ export const Chat = ({ phoneNumber }: ChatProps) => {
   const receiveMessage = async () => {
     try {
       const receivedMessage = await receiveNotification(idInstance, apiTokenInstance);
-
-      if (receivedMessage && receivedMessage.body.messageData?.typeMessage === 'textMessage') {
-        const textMessage = receivedMessage.body.messageData.textMessageData.textMessage;
-
-        const idMessage = receivedMessage.body.idMessage;
-
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: idMessage,
-            message: textMessage,
-            received: true,
-          },
-        ]);
-
+      if (receivedMessage) {
+        if (receivedMessage.body.messageData?.typeMessage === 'textMessage') {
+          const textMessage = receivedMessage.body.messageData.textMessageData.textMessage;
+          const idMessage = receivedMessage.body.idMessage;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: idMessage,
+              message: textMessage,
+              received: true,
+            },
+          ]);
+        }
         const receiptId = receivedMessage.receiptId;
-
         await deleteNotification(idInstance, apiTokenInstance, receiptId);
       }
     } catch (err) {
@@ -69,7 +68,7 @@ export const Chat = ({ phoneNumber }: ChatProps) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(receiveMessage, 10000);
+    const interval = setInterval(receiveMessage, 5000);
 
     return () => {
       clearInterval(interval);
@@ -80,27 +79,28 @@ export const Chat = ({ phoneNumber }: ChatProps) => {
     <>
       <div className="nav-bar">
         <span>{phoneNumber}</span>
-        <button type="submit" className="">
+        <button type="button" className="btn chat-btn" onClick={onChatExit}>
           Покинуть чат
         </button>
       </div>
-      <ul className="chat">
-        {Boolean(messages.length) &&
-          messages.map((message, index) => (
-            <li key={index} className="message">
-              <div>{message.id}</div>
-              <div>{message.message}</div>
-            </li>
-          ))}
-      </ul>
-      <form className="send-message-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={message}
-          onChange={handleChange}
-          placeholder="Напишите сообщение и нажмите ENTER"
-        />
-      </form>
+      <div className="chat-list">
+        <ul className="chat">
+          {Boolean(messages.length) &&
+            messages.map((message, index) => (
+              <li key={index} className={'message ' + (message.received ? 'received' : 'sent')}>
+                <div>{message.message}</div>
+              </li>
+            ))}
+        </ul>
+        <form className="send-message-form" onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={message}
+            onChange={handleChange}
+            placeholder="Напишите сообщение и нажмите enter"
+          />
+        </form>
+      </div>
     </>
   );
 };
