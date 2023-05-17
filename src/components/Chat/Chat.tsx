@@ -68,7 +68,7 @@ export const Chat = ({ phoneNumber, onChatExit }: ChatProps) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(receiveMessage, 5000);
+    const interval = setInterval(receiveMessage, 2000);
 
     return () => {
       clearInterval(interval);
@@ -83,8 +83,8 @@ export const Chat = ({ phoneNumber, onChatExit }: ChatProps) => {
           Покинуть чат
         </button>
       </div>
-      <div className="chat-list">
-        <ul className="chat">
+      <div className="chat">
+        <ul className="chat-list">
           {Boolean(messages.length) &&
             messages.map((message, index) => (
               <li key={index} className={'message ' + (message.received ? 'received' : 'sent')}>

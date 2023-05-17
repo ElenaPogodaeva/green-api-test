@@ -9,6 +9,7 @@
   border-radius: 5px;
   box-shadow: 1px 3px 4px rgba(0, 0, 0, 0.1);
   margin-top: 30px;
+  align-self: flex-start;
 }
 
 .form-title {
@@ -17,10 +18,9 @@
   margin-bottom: 20px;
 }
 
-.label {
-  display: block;
-  font-size: 16px;
-  font-weight: 600;
+.form-error {
+  font-size: 14px;
+  color: red;
 }
 
 .input {
