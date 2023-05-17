@@ -1,30 +1,32 @@
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { CreateChatForm } from '../../types/types';
+
 type CreateChatProps = {
-  phoneNumber: string;
   onPhoneChange: (value: string) => void;
   onPhoneSubmit: (value: boolean) => void;
 };
 
-export const CreateChat = ({ phoneNumber, onPhoneChange, onPhoneSubmit }: CreateChatProps) => {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const { value } = event.target;
-    onPhoneChange(value);
-  };
+export const CreateChat = ({ onPhoneChange, onPhoneSubmit }: CreateChatProps) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateChatForm>();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    if (phoneNumber) {
-      onPhoneSubmit(true);
-    }
+  const onSubmit: SubmitHandler<CreateChatForm> = (data): void => {
+    const { phoneNumber } = data;
+    onPhoneChange(phoneNumber);
+    onPhoneSubmit(true);
   };
 
   return (
-    <form className="form" onSubmit={handleSubmit}>
+    <form className="form" onSubmit={handleSubmit(onSubmit)}>
+      {errors?.phoneNumber && <span className="form-error">* phoneNumber invalid</span>}
       <input
         type="text"
         className="input"
         placeholder="Введите номер телефона"
-        value={phoneNumber}
-        onChange={handleChange}
+        {...register('phoneNumber', { required: true, pattern: /^\d{11}$/ })}
       />
       <button type="submit" className="btn">
         Создать чат

@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { LoginFormValues } from '../../types/types';
 
 export type AuthState = {
   idInstance: string;
@@ -26,7 +27,10 @@ export const authSlice = createSlice({
     ) => {
       state[action.payload.name] = action.payload.value;
     },
-    login: (state) => {
+    login: (state, action: PayloadAction<LoginFormValues>) => {
+      const { idInstance, apiTokenInstance } = action.payload;
+      state.idInstance = idInstance;
+      state.apiTokenInstance = apiTokenInstance;
       state.isAuth = true;
     },
     logout: (state) => {

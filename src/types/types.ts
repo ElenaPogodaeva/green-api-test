@@ -20,3 +20,12 @@ export interface IConfig {
   };
   body?: string;
 }
+
+export type LoginFormValues = {
+  idInstance: string;
+  apiTokenInstance: string;
+};
+
+export type CreateChatForm = {
+  phoneNumber: string;
+};
