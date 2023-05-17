@@ -1,9 +1,27 @@
 .header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
   color: white;
   background: lightblue;
-  text-align: center;
+}
+
+.header-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 50px;
+}
+
+.header-btn {
+  font-size: 16px;
+  text-transform: uppercase;
+  padding: 5px;
+  background: none;
+  border: none;
+  transition: .3s;
+}
+
+.header-btn:hover {
+  color: #7692c7;
 }
