@@ -68,7 +68,7 @@ export const Chat = ({ phoneNumber, onChatExit }: ChatProps) => {
   };
 
   useEffect(() => {
-    const interval = setInterval(receiveMessage, 2000);
+    const interval = setInterval(receiveMessage, 5000);
 
     return () => {
       clearInterval(interval);
